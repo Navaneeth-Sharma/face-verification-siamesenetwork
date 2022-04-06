@@ -2,7 +2,7 @@
 
 ## Dataset
 
-https://www.robots.ox.ac.uk/~vgg/data/vgg_face/
+VGG Face Dataset https://www.robots.ox.ac.uk/~vgg/data/vgg_face/
 
 ## Paper
 
