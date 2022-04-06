@@ -1,46 +1,37 @@
 import torch.nn as nn
+from torchvision.models import resnet34
 # from torchsummary import summary
 
 
 class SiameseNetwork(nn.Module):
-    def __init__(self):
+    def __init__(self, pretrained=True):
         super(SiameseNetwork, self).__init__()
-        self.cnn1 = nn.Sequential(
-            nn.ReflectionPad2d(1),
-            nn.Conv2d(1, 4, kernel_size=3),
-            nn.ReLU(inplace=True),
-            nn.BatchNorm2d(4),
+        self.features_extracter = resnet34(pretrained=True)
+        self.features_extracter.fc = nn.Sequential(
 
-            nn.ReflectionPad2d(1),
-            nn.Conv2d(4, 8, kernel_size=3),
-            nn.ReLU(inplace=True),
-            nn.BatchNorm2d(8),
+            nn.Flatten(),
 
-            nn.ReflectionPad2d(1),
-            nn.Conv2d(8, 8, kernel_size=3),
-            nn.ReLU(inplace=True),
-            nn.BatchNorm2d(8),
+            nn.Linear(in_features=512, out_features=512, bias=False),
+            nn.ReLU(),
+            nn.BatchNorm1d(512),
+            nn.Dropout(0.4),
+
+            nn.Linear(in_features=512, out_features=256, bias=False),
+            nn.ReLU(),
+            nn.BatchNorm1d(256),
+            nn.Dropout(0.4),
+
+            nn.Linear(in_features=256, out_features=128, bias=False),
+            nn.ReLU(),
+            nn.BatchNorm1d(128),
+            nn.Dropout(0.4),
+
+            nn.Linear(in_features=128, out_features=128),
         )
 
-        self.fc1 = nn.Sequential(
-            nn.Linear(8*100*100, 500),
-            nn.ReLU(inplace=True),
-
-            nn.Linear(500, 500),
-            nn.ReLU(inplace=True),
-
-            nn.Linear(500, 5))
-
-    def forward_once(self, x):
-        output = self.cnn1(x)
-        output = output.view(output.size()[0], -1)
-        output = self.fc1(output)
-        return output
-
-    def forward(self, input1, input2):
-        output1 = self.forward_once(input1)
-        output2 = self.forward_once(input2)
-        return output1, output2
+    def forward(self, x):
+        x = self.features_extracter(x)
+        return x
 
 
 if __name__ == "__main__":

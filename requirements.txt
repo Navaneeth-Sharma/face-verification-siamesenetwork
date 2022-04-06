@@ -1,6 +1,8 @@
 torchvision
+facenet_pytorch
 opencv-python
 pandas
 numpy
 pillow
+gdown
 pytorch
